@@ -1,4 +1,5 @@
-// Import dependencies
+// app/src/main/resources/static/js/doctorDashboard.js
+
 import { getAllAppointments } from "../services/appointmentRecordService.js";
 import { createPatientRow } from "../components/patientRows.js";
 
@@ -9,34 +10,34 @@ const todayButton = document.getElementById("todayButton");
 const datePicker = document.getElementById("datePicker");
 
 // Global variables
-let selectedDate = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD'
+let selectedDate = new Date().toISOString().split("T")[0]; // Format: 'YYYY-MM-DD'
 let patientName = null;
 const token = localStorage.getItem("token");
 
 // Set default date in date picker on load
 if (datePicker) datePicker.value = selectedDate;
 
-// Handle search bar input for patient name
+// Search bar input handler
 searchBar?.addEventListener("input", () => {
   const value = searchBar.value.trim();
   patientName = value !== "" ? value : "null";
   loadAppointments();
 });
 
-// Handle "Today's Appointments" button click
+// "Today's Appointments" button handler
 todayButton?.addEventListener("click", () => {
   selectedDate = new Date().toISOString().split("T")[0];
   if (datePicker) datePicker.value = selectedDate;
   loadAppointments();
 });
 
-// Handle date picker changes
+// Date picker change handler
 datePicker?.addEventListener("change", () => {
   selectedDate = datePicker.value;
   loadAppointments();
 });
 
-// Load and render appointments
+// Fetch and render appointments
 async function loadAppointments() {
   try {
     const appointments = await getAllAppointments(selectedDate, patientName || "null", token);
@@ -65,7 +66,7 @@ async function loadAppointments() {
   }
 }
 
-// Load appointments on initial page load
+// Load appointments on page load
 document.addEventListener("DOMContentLoaded", () => {
   loadAppointments();
 });

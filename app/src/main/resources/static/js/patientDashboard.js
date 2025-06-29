@@ -1,26 +1,26 @@
-// Imports
+// app/src/main/resources/static/js/patientDashboard.js
+
 import { getDoctors, filterDoctors } from './services/doctorServices.js';
 import { patientSignup, patientLogin } from './services/patientServices.js';
 import { createDoctorCard } from './components/doctorCard.js';
 import { openModal } from './components/modals.js';
 
-// DOMContentLoaded Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  loadDoctorCards(); // Load all doctors on page load
+  loadDoctorCards();
 
-  // Signup modal trigger
+  // Bind signup modal open
   const signupBtn = document.getElementById("patientSignup");
   if (signupBtn) {
     signupBtn.addEventListener("click", () => openModal("patientSignup"));
   }
 
-  // Login modal trigger
+  // Bind login modal open
   const loginBtn = document.getElementById("patientLogin");
   if (loginBtn) {
     loginBtn.addEventListener("click", () => openModal("patientLogin"));
   }
 
-  // Filter triggers
+  // Bind filters
   const searchBar = document.getElementById("searchBar");
   const timeFilter = document.getElementById("filterTime");
   const specialtyFilter = document.getElementById("filterSpecialty");
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (specialtyFilter) specialtyFilter.addEventListener("change", filterDoctorsOnChange);
 });
 
-// Load all doctor cards
+// Load all doctors and render cards
 async function loadDoctorCards() {
   try {
     const doctors = await getDoctors();
@@ -48,17 +48,16 @@ async function loadDoctorCards() {
   }
 }
 
-// Filter doctors dynamically
+// Filter doctors based on user input
 async function filterDoctorsOnChange() {
   try {
     const name = document.getElementById("searchBar")?.value.trim() || null;
     const time = document.getElementById("filterTime")?.value || null;
     const specialty = document.getElementById("filterSpecialty")?.value || null;
 
-    const response = await filterDoctors(name || null, time || null, specialty || null);
+    const response = await filterDoctors(name, time, specialty);
     const doctors = response?.doctors || [];
     const contentDiv = document.getElementById("content");
-
     contentDiv.innerHTML = "";
 
     if (doctors.length > 0) {
@@ -75,7 +74,7 @@ async function filterDoctorsOnChange() {
   }
 }
 
-// Handle patient signup form submission
+// Patient signup form submission handler
 window.signupPatient = async function () {
   try {
     const data = {
@@ -90,7 +89,9 @@ window.signupPatient = async function () {
 
     if (success) {
       alert(`✅ ${message}`);
-      document.getElementById("modal").style.display = "none";
+      // Close modal, assuming modal id is "modal"
+      const modal = document.getElementById("modal");
+      if (modal) modal.style.display = "none";
       window.location.reload();
     } else {
       alert(`❌ ${message}`);
@@ -101,7 +102,7 @@ window.signupPatient = async function () {
   }
 };
 
-// Handle patient login form submission
+// Patient login form submission handler
 window.loginPatient = async function () {
   try {
     const data = {

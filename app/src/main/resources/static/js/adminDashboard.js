@@ -1,6 +1,8 @@
-// Import dependencies
+// app/src/main/resources/static/js/adminDashboard.js
+
 import { openModal } from "../components/modals.js";
 import { getDoctors, filterDoctors, saveDoctor } from "../services/doctorServices.js";
+import { createDoctorCard } from "../components/doctorCard.js"; // Make sure this exists and exports createDoctorCard
 
 // DOM elements
 const contentDiv = document.getElementById("content");
@@ -8,17 +10,17 @@ const searchBar = document.getElementById("searchBar");
 const filterTime = document.getElementById("filterTime");
 const filterSpecialty = document.getElementById("filterSpecialty");
 
-// Open Add Doctor Modal
+// Open Add Doctor Modal when Add Doctor button is clicked
 document.getElementById('addDocBtn').addEventListener('click', () => {
   openModal('addDoctor');
 });
 
-// Load all doctors on page load
+// Load doctors when page loads
 window.onload = function () {
   loadDoctorCards();
 };
 
-// Fetch and render doctor cards
+// Fetch all doctors and render cards
 async function loadDoctorCards() {
   try {
     const doctors = await getDoctors();
@@ -29,12 +31,12 @@ async function loadDoctorCards() {
   }
 }
 
-// Attach event listeners for filtering
+// Event listeners for filtering doctors dynamically
 searchBar.addEventListener("input", filterDoctorsOnChange);
 filterTime.addEventListener("change", filterDoctorsOnChange);
 filterSpecialty.addEventListener("change", filterDoctorsOnChange);
 
-// Handle filter input changes
+// Called on filter/search input changes
 async function filterDoctorsOnChange() {
   const name = searchBar.value.trim() || null;
   const time = filterTime.value || null;
@@ -54,9 +56,9 @@ async function filterDoctorsOnChange() {
   }
 }
 
-// Render list of doctors as cards
+// Render doctors as cards in the content div
 function renderDoctorCards(doctors) {
-  contentDiv.innerHTML = ""; // Clear content
+  contentDiv.innerHTML = ""; // Clear previous
 
   doctors.forEach(doctor => {
     const card = createDoctorCard(doctor);
@@ -64,22 +66,7 @@ function renderDoctorCards(doctors) {
   });
 }
 
-// Create a doctor card component
-function createDoctorCard(doctor) {
-  const card = document.createElement("div");
-  card.className = "doctor-card";
-
-  card.innerHTML = `
-    <h3>Dr. ${doctor.name}</h3>
-    <p><strong>Email:</strong> ${doctor.email}</p>
-    <p><strong>Specialty:</strong> ${doctor.specialty}</p>
-    <p><strong>Available:</strong> ${doctor.availableTime}</p>
-  `;
-
-  return card;
-}
-
-// Handle adding a new doctor
+// Handle adding a new doctor via modal form submission
 window.adminAddDoctor = async function () {
   const name = document.getElementById("docName").value;
   const email = document.getElementById("docEmail").value;
@@ -88,6 +75,7 @@ window.adminAddDoctor = async function () {
   const specialty = document.getElementById("docSpecialty").value;
   const availableTime = document.getElementById("docAvailableTime").value;
 
+  // Check for admin token
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Authentication token missing. Please login again.");
@@ -101,7 +89,7 @@ window.adminAddDoctor = async function () {
 
     if (result.success) {
       alert("Doctor added successfully!");
-      location.reload();
+      location.reload(); // Reload page to refresh doctor list
     } else {
       alert("Failed to add doctor: " + result.message);
     }

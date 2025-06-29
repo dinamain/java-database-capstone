@@ -1,10 +1,12 @@
-// Import API base URL from config
+// app/src/main/resources/static/js/services/doctorServices.js
+
 import { API_BASE_URL } from "../config/config.js";
 
 const DOCTOR_API = API_BASE_URL + "/doctor";
 
 /**
  * Fetch all doctors from the server
+ * @returns {Array} List of doctors or empty array on error
  */
 export async function getDoctors() {
   try {
@@ -19,17 +21,16 @@ export async function getDoctors() {
 
 /**
  * Delete a doctor by ID using an auth token
- * @param {string} id - Doctor's ID
- * @param {string} token - Admin authentication token
+ * @param {string} id - Doctor's unique identifier
+ * @param {string} token - Authentication token (Admin)
+ * @returns {Object} { success: boolean, message: string }
  */
 export async function deleteDoctor(id, token) {
   try {
     const response = await fetch(`${DOCTOR_API}/${id}/${token}`, {
       method: "DELETE",
     });
-
     const result = await response.json();
-
     return {
       success: response.ok,
       message: result.message || "Doctor deleted",
@@ -45,8 +46,9 @@ export async function deleteDoctor(id, token) {
 
 /**
  * Save a new doctor record
- * @param {Object} doctor - Doctor data
- * @param {string} token - Admin authentication token
+ * @param {Object} doctor - Doctor details (name, email, availability, etc.)
+ * @param {string} token - Authentication token (Admin)
+ * @returns {Object} { success: boolean, message: string }
  */
 export async function saveDoctor(doctor, token) {
   try {
@@ -57,9 +59,7 @@ export async function saveDoctor(doctor, token) {
       },
       body: JSON.stringify(doctor),
     });
-
     const result = await response.json();
-
     return {
       success: response.ok,
       message: result.message || "Doctor saved successfully",
@@ -75,13 +75,14 @@ export async function saveDoctor(doctor, token) {
 
 /**
  * Filter doctors based on name, time, and specialty
- * @param {string} name
- * @param {string} time
- * @param {string} specialty
+ * @param {string|null} name - Doctor name filter
+ * @param {string|null} time - Availability time filter
+ * @param {string|null} specialty - Specialty filter
+ * @returns {Array} Filtered list of doctors or empty array
  */
 export async function filterDoctors(name, time, specialty) {
   try {
-    // Replace empty strings with "null" to avoid backend errors
+    // Provide safe defaults to avoid breaking URLs
     const safeName = name || "null";
     const safeTime = time || "null";
     const safeSpecialty = specialty || "null";
@@ -94,7 +95,7 @@ export async function filterDoctors(name, time, specialty) {
       const data = await response.json();
       return data.doctors || [];
     } else {
-      console.warn("Failed to filter doctors. Server responded with:", response.status);
+      console.warn("Failed to filter doctors, status:", response.status);
       return [];
     }
   } catch (error) {
